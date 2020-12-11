@@ -1,0 +1,174 @@
+/* 引入样式初始化的css库 */
+// @import url('https://necolas.github.io/normalize.css/latest/normalize.css');
+@import url('./normalize.css');
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+head,
+div,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+li,
+ol,
+dl,
+dt,
+dd,
+footer,
+nav,
+header {
+  margin: 0;
+  padding: 0;
+}
+
+ul,
+ol {
+  list-style: none;
+  /* 将原来的默认的小圆点给清除 */
+}
+
+a {
+  text-decoration: none;
+  /* 把a标签默认的下划线给清除 */
+}
+
+input {
+  outline: none;
+}
+
+em,
+i,
+s,
+del,
+ins b,
+strong {
+  font-style: normal;
+  /*将原来的默认样式都去除掉,让它变成一个没有默认样式的标签，用于页面中的特定内容的一个修饰*/
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: normal;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.w {
+  width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+.title {
+  color: #0dbc79;
+  transition: all 1s;
+}
+
+.title:hover {
+  cursor: pointer;
+  color: hotpink;
+  transform: rotateX(180deg);
+}
+
+body {
+  background-color: #1e1e1e;
+  color: #fff;
+}
+
+#app>ul.todos-list-wrap {
+  min-height: 200px;
+}
+
+#app>ul.todos-list-wrap>li {
+  font-size: 20px;
+  line-height: 40px;
+  transition: all 1s linear, transform .4s linear;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    background-color: hotpink;
+  }
+}
+
+.done {
+  text-decoration: line-through;
+  font-style: italic;
+  color: #0dbc79;
+}
+
+ul.pagination {
+  display: flex;
+  margin-top: 30px;
+
+  li {
+    display: flex;
+
+    a {
+      color: #fff;
+      padding: 8px 16px;
+      transition: background-color .3s;
+      border: 1px solid #ddd;
+      margin: 0 4px;
+      border-radius: 4px;
+
+      &.active {
+        background-color: #0dbc79;
+        color: #fff;
+      }
+
+      &:hover:not(.active) {
+        background-color: #ddd;
+      }
+    }
+  }
+}
+
+button {
+  background-color: #4CAF50;
+  /* Green */
+  border: none;
+  color: white;
+  padding: 5px 22px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  outline: none;
+  font-size: 16px;
+  border-radius: 2px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+input[type="search"] {
+  width: 200px;
+  transition: all .5s;
+  background-color: #0d1117;
+  border-radius: 4px;
+  color: #fff;
+  border: none;
+  height: 30px;
+  text-indent: 10px;
+
+  &:focus {
+    width: 300px;
+  }
+}

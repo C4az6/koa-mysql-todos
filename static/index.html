@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+  <!-- 引入雪花特效的脚本 -->
+  <!-- <script src="./snow.js"></script> -->
+  <link rel="stylesheet" href="/public/index.css">
+</head>
+
+<body>
+  <div id="app" class="w">
+    <h1 class="title">Todos</h1>
+    <hr />
+    <input type="search" v-model="searchValue" placeholder="想要搜些什么呢?">
+    <button @click="handleSearchClick">搜索</button>&nbsp;&nbsp;
+    <button @click="handleAddTask">添加数据</button>
+    <ul class="todos-list-wrap" >
+      <li v-for="(item, index) in todosList" :key="index" :class="item.done?'done':''">
+        <span>[{{item.id}}]&nbsp;&nbsp;</span>
+        <input type="checkbox" @click.prevent="handleChangeTaskStatus(item)" :checked="item.done">
+        <span>{{item.title}}</span>
+        &nbsp;&nbsp;&nbsp;
+        <button @click="handleRemoveTask(item.id)">删除</button>
+      </li>
+    </ul>
+    <p v-show="todosList.length===0">
+      暂时没有数据
+    </p>
+
+    <!-- <div class="pages-wrap">
+      <a href="javascript:;" 
+      v-for="n in totalPages"
+      :class="{active: n==params.page}"
+      @click.prevent="handleChangePage(n)"
+      >{{n}}</a>
+    </div> -->
+
+    <ul class="pagination">
+      <li>
+        <a href="javascript:;" @click="handlePrePage">«</a>
+      </li>
+      <li v-for="n in totalPages">
+        <a href="javascript:;" :class="{active: n == params.page}" @click.prevent="handleChangePage(n)">{{n}}</a>
+      </li>
+      <li>
+        <a href="javascript:;" @click="handleNextPage">»</a>
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    // 配置雪花特效参数
+    /*     snow.down()
+        snow.info.top = "50%";
+        snow.info.left = "50%";
+        snow.info.number = 100; */
+    new Vue({
+      el: '#app',
+      data: {
+        todosList: [], // todos列表数据
+        searchValue: "", // 搜索的任务值
+        params: { // 分页参数
+          page: 1, // 当前页码
+          pageSize: 5, // 每页显示条数
+          keyword: "",
+          type: '' // 任务状态  1：已完成  0：未完成，默认显示全部任务
+        },
+        totalPages: 0 // 总页码数
+      },
+      methods: {
+        // 获取todos列表数据
+        getList() {
+          fetch(`/getList?page=${this.params.page}&pageSize=${this.params.pageSize}&keyword=${this.params.keyword}`)
+            .then(res => res.json())
+            .then(response => {
+              if (response.code != 0) {
+                alert(response.data)
+              } else {
+                this.todosList = response.data.todos;
+                this.totalPages = response.data.totalPages;
+              }
+            });
+        },
+
+        // 监听用户点击搜索事件
+        handleSearchClick() {
+          if (!this.searchValue.trim()) {
+            this.params.keyword="";
+            this.params.page = 1;
+            this.params.pageSize = 5;
+            this.getList();
+          } else {
+            this.params.keyword = this.searchValue;
+            this.getList();
+            this.searchValue = "";
+            this.params.keyword = "";
+          }
+        },
+
+        // 监听添加数据
+        handleAddTask() {
+          let title = prompt('请输入要添加的任务.');
+          if (title === null) return;
+          if (!title.trim()) {
+            return alert('😣任务标题不能为空!')
+          }
+          let params = JSON.stringify({
+            title
+          });
+          fetch('/add', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: params
+            }).then(res => res.json())
+            .then(response => {
+              if (response.code != 0) {
+                alert(response.data);
+              } else {
+                // 添加成功
+                alert(response.data);
+                this.getList();
+              }
+            })
+        },
+
+        // 监听删除任务事件
+        handleRemoveTask(id) {
+          console.log(id);
+          let confirm = window.confirm('您确定要删除该任务吗?');
+          console.log(confirm);
+          if (!confirm) return
+          fetch('/remove', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                id
+              })
+            }).then(res => res.json())
+            .then(response => {
+              console.log(response);
+              if (response.code != 0) {
+                alert(response.data);
+              } else {
+                alert(response.data)
+                this.getList();
+              }
+            })
+        },
+
+        // 修改任务状态
+        handleChangeTaskStatus(item) {
+          /* 
+            1. 获取用户点击的任务id
+            2. 将id传递给服务器端
+            3. 服务器拿到id然后更新数据库的数据，将结果返回前端
+            4. 判断返回的code做处理
+                  code: 0, 更新成功
+                  code: 1, 更新失败
+          */
+          let {
+            id,
+            done
+          } = item;
+          fetch('/change', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                id,
+                done: +!done
+              })
+            }).then(res => res.json())
+            .then(response => {
+              console.log(response);
+              if (response.code != 0) {
+                alert(response.data)
+              } else {
+                this.getList()
+              }
+            })
+        },
+
+        // 监听页码改变
+        handleChangePage(page) {
+          this.params.page = page;
+          this.getList();
+        },
+        // 监听用户点击上一页按钮
+        handlePrePage() {
+          if (this.params.page !== 1) {
+            this.params.page--;
+            this.getList();
+          }
+        },
+        // 监听用户点击下一页按钮
+        handleNextPage() {
+          if (this.params.page !== this.totalPages) {
+            this.params.page++;
+            console.log(this.params.page);
+            this.getList();
+          }
+        }
+      },
+      created() {
+        this.getList()
+      }
+    })
+  </script>
+</body>
+
+</html>
