@@ -1,8 +1,3 @@
-const {
-  ifError
-} = require('assert');
-const bodyParser = require('koa-bodyparser');
-
 (async function () {
   const Koa = require('koa');
   const KoaStaticCache = require('koa-static-cache');
